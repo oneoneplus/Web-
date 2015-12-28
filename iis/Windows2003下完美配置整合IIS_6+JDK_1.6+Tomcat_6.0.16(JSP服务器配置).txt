@@ -1,0 +1,219 @@
+一、下载所需要的文件 
+
+1、JRE 1.6下载地址（若要给服务器配置纯JSP运行环境则下载这个，若要做开发则下载第二个所述的JDK）： 
+http://cds.sun.com/is-bin/INTERSHOP.enfinity/WFS/CDS-CDS_Developer-Site/en_US/-/USD/VerifyItem-Start/jre-6u10-beta-windows-i586-p.exe?BundledLineItemUUID=F19IBe.niuUAAAEaE_tKwKGt&OrderID=HkhIBe.nowcAAAEaAftKwKGt&ProductID=Yo9IBe.pkJkAAAEaTMMke24m&FileName=/jre-6u10-beta-windows-i586-p.exe 
+
+2、JDK 1.6下载地址（内含JRE1.6，要做java程序开发的程序员则下载这个）： 
+http://cds.sun.com/is-bin/INTERSHOP.enfinity/WFS/CDS-CDS_Developer-Site/en_US/-/USD/VerifyItem-Start/jdk-6u10-beta-windows-i586-p.exe?BundledLineItemUUID=J81IBe.nOqoAAAEa6nVKwKGv&OrderID=Q1hIBe.n_ggAAAEa23VKwKGv&ProductID=0y1IBe.oylsAAAEac84Gcm4w&FileName=/jdk-6u10-beta-windows-i586-p.exe 
+
+3、Tomcat 6下载地址（java应用服务器软件，必须下载）： 
+http://apache.mirror.phpchina.com/tomcat/tomcat-6/v6.0.16/bin/apache-tomcat-6.0.16.exe 
+
+4、JK-1.2.26下载地址（即下文所述的isapi_redirect.dll，是整合IIS 6与Tomcat 6的应用程序扩展接管文件）： 
+http://apache.justdn.org/tomcat/tomcat-connectors/jk/binaries/win32/jk-1.2.26/isapi_redirect-1.2.26.dll 
+
+二、安装JDK/JRE和Tomcat 
+
+1、首先运行刚才下载的JRE1.6（只作服务器则安装这个）或JDK1.6（做java程序开发则安装这个）文件，安装过程很简单，根据向导选好安装路径，一路点击下一步即可。这里假设JRE的安装路径是：D:\jsp\jre6；JDK的安装路径是：D:\jsp\jdk1.6.0_10 
+
+2、如果安装的是JRE1.6，可以跳过这一步，如果安装的是JDK1.6，则要添加如下环境变量的系统变量（具体设置地方位于“我的电脑-属性-高级-环境变量-系统变量”）： 
+JAVA_HOME：D:\jsp\jdk1.6.0_10 
+classpath：D:\jsp\jdk1.6.0_010\lib\dt.jar;D:\jsp\jdk1.6.0_10\lib\tools.jar;.
+path：%JAVA_HOME%\bin （这个用分号隔开，补充在原来已有的字符串后面） 
+
+接着可以用记事本写一个简单的java程序来测试JDK是否已安装成功： 
+public class Test{ 
+public static void main(String args[]){ 
+System.out.println("This is a test program."); 
+} 
+} 
+将上面的这段程序保存为文件名为Test.java的文件（注意大小写要与程序的类名称一致）。 
+然后打开命令提示符窗口，cd到你的Test.java所在目录，然后键入下面的命令 
+javac Test.java 
+java Test 
+此时如果看到打印出来This is a test program.的话说明安装成功了，如果没有打印出这句话，你需要仔细检查一下你的配置情况。 
+
+3、接着运行刚才下载的Tomcat安装文件：apache-tomcat-6.0.16.exe，在安装过程中，会提示你选择JVM目录，一般情况下，默认选择的路径都是对的，例如，如果你刚才安装的是JRE，路径是“C:\Program Files\Java\jre6”，如果安装的是JDK，路径则是“C:\Program Files\Java\jdk1.6.0_10\jre”，另外还有个安装部件的勾选，建议核心部分的三个选项都选上，特别是service部分，这个可以让tomcat作为windows服务来运行。 
+     安装完Tomcat后，在我的电脑->属性->高级->环境变量->系统变量中添加以下环境变量(假定你的tomcat安装在D:\jsp\Tomcat 6.0）： 
+CATALINA_HOME：D:\jsp\Tomcat 6.0 
+CATALINA_BASE：D:\jsp\Tomcat 6.0 
+TOMCAT_HOME：D:\jsp\Tomcat 6.0 
+
+然后修改环境变量中的classpath，把tomat安装目录下的common\lib下的servlet.jar追加到classpath中去。 
+如果安装的是JDK，修改后的classpath如下： 
+classpath=.;%JAVA_HOME%\lib\dt.jar;%JAVA_HOME%\lib\tools.jar;%CATALINA_HOME%\common\lib\servlet.jar; 
+如果安装的是JRE，修改后的classpath如下： 
+classpath=.;%CATALINA_HOME%\common\lib\servlet.jar; 
+接着可以启动tomcat，在IE中访问http://localhost:8080，如果看到tomcat的欢迎页面的话说明安装成功了。 
+
+三、检测直接用Tomcat平台运行JSP与Servlet程序是否成功 
+
+1、检测JSP 
+
+   A.到Tomcat的安装目录的webapps目录，可以看到ROOT，examples, tomcat-docs之类Tomcat自带的的目录； 
+   B.在webapps目录下新建一个目录，起名叫myapp； 
+   C.myapp下新建一个目录WEB-INF，注意，目录名称是区分大小写的； 
+   D.WEB-INF下新建一个文件web.xml，内容如下： 
+
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<web-app> 
+<display-name>My Web Application</display-name> 
+<description> 
+A application for test. 
+</description> 
+</web-app> 
+
+   E.在myapp下新建一个测试的jsp页面，文件名为index.jsp，文件内容如下： 
+
+<html><body><center> 
+Now time is: <%=new java.util.Date()%> 
+</center></body></html> 
+
+   F.重启Tomcat（运行Tomcat后，在任务栏的托盘里有个带绿色向右方向小箭头的图标，那个就是Tomcat服务的图标，重启方法就是右键点击出菜单，先Stop服务，再start服务） 
+   G.打开浏览器，输入http://localhost:8080/myapp/index.jsp （注意网址大小写要与文件夹名以及文件名都一致）看到当前时间的话说明就成功了。 
+
+2、检测Servlet 
+
+   A.用记事本以HelloWorld.java文件名编辑你的第一个Servlet 
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+public class HelloWorld extends HttpServlet
+{
+public void doGet(HttpServletRequest request,HttpServletResponse response)throws ServletException,IOException
+{
+response.setContentType("text/html");
+PrintWriter out = response.getWriter();
+out.println("<html><head><title>");
+out.println("This is my first Servlet");
+out.println("</title></head><body>");
+out.println("<h1>Hello,World!</h1>");
+out.println("</body></html>");
+}
+}
+   B.然后照样用javac HelloWorld.java来编译这个文件，如果出现编译错误，那么就是应该把Tomcat安装目录下的common\lib里面的servlet.jar文件拷贝到JDK安装目录下的jre\lib\ext中，再次编译，就没有问题了！ 
+   C.在你刚才建立的myapp文件夹中，进入WEB-INF文件夹内，再建一个classes文件夹，并将刚才编译生成的HelloWorld.class文件放进classes文件夹里。 
+   D.用记事本打开WEB-INF文件夹下的web.xml文件，修改成如下并保存： 
+
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<web-app> 
+<display-name>My Web Application</display-name> 
+<description> 
+A application for test. 
+</description> 
+<servlet> 
+     <servlet-name>HelloWorld</servlet-name> 
+     <servlet-class>HelloWorld</servlet-class> 
+</servlet> 
+<servlet-mapping> 
+<servlet-name>HelloWorld</servlet-name> 
+     <url-pattern>/HelloWorld</url-pattern> 
+</servlet-mapping> 
+</web-app> 
+
+   E.重启Tomcat服务 
+   F.在浏览器输入http://localhost:8080/myapp/HelloWorld ，如果页面出现大号字的Hello,World!，表示Servlet也运行成功了。 
+
+四、用JK整合IIS 6与Tomcat 6 
+1、首先在Tomcat安装目录的conf文件夹下，用记事本建立这两个文件：workers.properties与uriworkermap.properties 
+   workers.properties文件的内容是： 
+
+workers.tomcat_home=D:\Program Files\Apache Software Foundation\Tomcat 6.0\ 
+workers.java_home=D:\Program Files\Java\jdk1.6.0_10\ （如果安装的是JRE则去掉这行） 
+ps=\ 
+worker.list=ajp13 
+worker.ajp13.port=8009 
+worker.ajp13.host=localhost 
+worker.ajp13.type=ajp13 
+worker.ajp13.lbfactor=1 
+
+   uriworkermap.properties文件的内容是： 
+
+/*.jsp=ajp13 
+/*.do=ajp13 
+!/*.jpg=ajp13 
+!/*.gif=ajp13 
+!/*.bmp=ajp13 
+
+2、用记事本建立一个扩展名为reg的注册表导入文件，文件名随意，我命名的是isapi_redirect.reg，假设Tomcat安装目录是“C:\Program Files\Apache Software Foundation\Tomcat 6.0”，JK文件名为“isapi_redirect.dll”，则reg文件内容如下（Tomcat安装目录与JK文件名不同的请对应修改内容）： 
+
+Windows Registry Editor Version 5.00 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Apache Software Foundation\Jakarta Isapi Redirector\1.0] 
+"log_file"="C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0\\logs\\isapi.log" 
+"log_level"="debug" 
+"worker_file"="C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0\\conf\\workers.properties" 
+"worker_mount_file"="C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0\\conf\\uriworkermap.properties" 
+"extension_uri"="/jakarta/isapi_redirect.dll" 
+
+然后双击运行isapi_redirect.reg文件，将注册资料导入注册表，显示导入成功后，再打开注册表检查HKEY_LOCAL_MACHINE\SOFTWARE\Apache Software Foundation\Jakarta Isapi Redirector\1.0中对应的项目与其值是否都有都对了： 
+
+extension_uri /jakarta/isapi_redirect.dll (jakarta为IIS下的虚拟目录) 
+log_file C:\Program Files\Apache Software Foundation\Tomcat 6.0\logs\isapi.log (指定JK插件使用的日志文件) 
+log_level debug (指定日志记录类型) 
+worker_file C:\Program Files\Apache Software Foundation\Tomcat 6.0\conf\workers.properties (指定JK插件的工作文件) 
+worker_mount_file C:\Program Files\Apache Software Foundation\Tomcat 6.0\conf\uriworkermap.properties (指定JK插件的URL映射) 
+
+如果没有上述项，则建立相关项和相关值。 
+
+
+3、配置IIS 
+   A.在“Internet信息服务管理器”的“网站”中的“Web服务扩展”上点右键选择“添加一个新的Web服务扩展”，弹出的框中扩展名填JSP(无所谓的,自己随便设置名称)，“要求的文件”选“添加”然后找到你的isapi_redirector.dll后“确定”，“设置扩展状态为允许”也打上勾，确定。 
+   B.在“Internet信息服务管理器”的“默认网站”点右键选“属性”，在弹出的页框里选择“ISAPI筛选器”，点“添加”，筛选器名称填jakarta,可执行文件中填入你的isapi_redirector.dll的绝对路径，然后点“确定”。 
+   C.同样是在默认站点的属性窗口里，切换到“主目录”界面，将目录路径改为上面“检测JSP”步骤建立的myapp文件夹路径，点击“应用程序设置”区域的“配置”按钮，打开配置窗口，在应用程序扩展点击添加，可执行文件浏览找到你的isapi_redirector.dll文件，并将文件路径前后用英文双引号括起来，扩展名填“.jsp”，动作限制为“GET,HEAD,POST,DEBUG”（添加这个应用程序扩展的作用是为了实现在默认文档里添加jsp文件名时，IIS能自动识别，否则，即使在默认文档里添加了index.jsp之类的名称，网址不写具体文件名的话，就不能默认执行指定的jsp文件），然后一路点击确定，关闭属性页。 
+   D.再在“默认网站”上点右键，选择“新建”－>“虚拟目录”，别名填jakarta，下一步，路径选为你的isapi_redirector.dll存放的目录，下一步，权限中记得把“执行”那项打勾，完成后，再右键点击这个刚建好的虚拟目录，选“属性”，在属性窗口的“虚拟目录”界面上，将“执行权限”改为“脚本和可执行文件”，然后应用确定。 
+   E.用记事本打开Tomcant安装目录conf文件夹下的server.xml文件，假设你的myapp路径是“C:\Program Files\Apache Software Foundation\Tomcat 6.0\webapps\myapp”，在server.xml文件的</Host>标签前面加上一行： 
+<Context path="" reloadable="true" docBase="C:\Program Files\Apache Software Foundation\Tomcat 6.0\webapps\myapp" workDir="C:\Program Files\Apache Software Foundation\Tomcat 6.0\webapps\myapp\work" /> 
+
+这行的作用是更改Tomcat的默认站点主目录 
+   F.重启Tomcat服务。 
+   至此，IIS 6与Tomcat 6的整合就完成了，下面访问http://localhost/index.jsp看看，显示的结果与http://localhost:8080/index.jsp是否一致？如果一致的话，恭喜你，你成功了！如果你还在默认站点属性窗口的默认站点里添加了index.jsp，那么你直接访问http://localhost，一样能显示同样的结果！ 
+
+五、快速添加第二个JSP虚拟站点 
+   1、在“Internet信息服务管理器”新建一个虚拟站点，主机头添加上你的域名，假设有两个域名：“jsp.testdomain.com" 与“test.testdomain.com”。 
+   2、在这个新建的虚拟站点上，重复“四”的B、C、D步骤，所不同的是填写的主目录路径不同，这里的路径可以填写你真正JSP站点文件夹所在的目录，这个文件夹可以放在任何一个盘的任何一个目录，这里假设是“C:\WebSite\MyJSP”。 
+   3、用记事本打开Tomcat安装目录下的Server.xml，在</Engine>标签前面加上下面的内容（每在IIS增加一个JSP虚拟站点，都要对应地在Server.xml加上下面的内容）后保存： 
+
+<Host name="jsp.KapokNet.com"   appBase="C:\WebSite\MyJSP" 
+             unpackWARs="true" autoDeploy="true" 
+             xmlValidation="false" xmlNamespaceAware="false"> 
+   <Alias>test.kapoknet.com</Alias> 
+   <Context path="" reloadable="true" docBase="C:\WebSite\MyJSP" workDir="C:\WebSite\MyJSP\work" /> 
+</Host> 
+
+   4、重启Tomcat。 
+   至此，一个新的JSP虚拟站点就完成部署了，只要所绑定的域名解析到了所在的服务器，直接用该域名就能访问执行JSP文件，不需要通过8080端口了。 
+   至于Servlet的执行，在IIS下面，目前需要通过将定义Servlet的xml文件里对应的Servlet程序名url定义加上.jsp，映射为JSP文件名，才能正确直接访问执行，运行效果是与Servlet一样的，用上面所建的Servlet为例，假设Servlet名称为HelloWorld，具体实现方法就是将WEB-INF文件夹下的web.xml文件的“<url-pattern>/HelloWorld</url-pattern>”修改为“<url-pattern>/HelloWorld.jsp</url-pattern>”，整个web.xml修改后的内容如下： 
+
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<web-app> 
+<display-name>My Web Application</display-name> 
+<description> 
+A application for test. 
+</description> 
+<servlet> 
+     <servlet-name>HelloWorld</servlet-name> 
+     <servlet-class>HelloWorld</servlet-class> 
+</servlet> 
+<servlet-mapping> 
+<servlet-name>HelloWorld</servlet-name> 
+     <url-pattern>/HelloWorld.jsp</url-pattern> 
+</servlet-mapping> 
+</web-app> 
+
+六、实际效果演示 
+   1、默认jsp网页访问：http://jsp.testdomain.com 或 http://test.testdomain.com 
+   2、jsp网页直接访问：http://jsp.testdomaincom/index.jsp 
+   3、映射为jsp文件的Servlet程序的演示访问：http://jsp.testdomain.com/HelloWorld.jsp 
+
+   1、2就是上面写的显示系统时间的一个最简单JSP程序，3就是输出显示大号字的HelloWorld!。
+
+
+D:\jsp\jdk1.6.0_010\lib\dt.jar;D:\jsp\jdk1.6.0_10\lib\tools.jar;.
+
+
+
+------------------------------
+问题处理:
+-----------------------
+tomcat启动不了:
+删掉你server.xml下面的所有映射就可以启动(映射代码不对)
